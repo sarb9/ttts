@@ -11,26 +11,6 @@ from utils.utils import (
     gaussian_sample_ellipsoid,
 )
 
-"""
-Class for the ECOLog algorithm.
-Additional Attributes
----------------------
-l2_reg: float
-    ell-two regularization of maximum-likelihood problem (lambda)
-v_tilde_matrix: np.array(dim x dim)
-    matrix tilde{V}_t from the paper
-v_tilde_inv_matrix: np.array(dim x dim)
-    inverse of matrix tilde{V}_t from the paper
-theta : np.array(dim)
-    online estimator
-conf_radius : float
-    confidence set radius
-cum_loss : float
-    cumulative loss between theta and theta_bar
-ctr : int
-    counter
-"""
-
 
 class EcoLog:
     def __init__(self, param_norm_ub, arm_norm_ub, dim, failure_level):
@@ -38,8 +18,7 @@ class EcoLog:
         self.arm_norm_ub = arm_norm_ub
         self.dim = dim
         self.failure_level = failure_level
-        self.name = "adaECOLog"
-        self.l2reg = 1
+        self.l2reg = 4
         self.vtilde_matrix = self.l2reg * np.eye(self.dim)
         self.vtilde_matrix_inv = (1 / self.l2reg) * np.eye(self.dim)
         self.theta = np.zeros((self.dim,))
@@ -123,12 +102,9 @@ class EcoLog:
         argmax = None
         for i, arm in enumerate(arm_set):
             opreward = self.compute_optimistic_reward(arm)
-            print(arm, opreward)
             if opreward > max:
                 max = opreward
                 argmax = i
-                print(arm)
-                print(opreward)
 
         # update ctr
         self.ctr += 1
@@ -156,3 +132,12 @@ class EcoLog:
         pred_reward = sigmoid(np.sum(self.theta * arm))
         bonus = self.conf_radius * norm
         return pred_reward + bonus
+
+    def compute_pessimistic_reward(self, arm):
+        """
+        Returns prediction + exploration_bonus for arm.
+        """
+        norm = weighted_norm(arm, self.vtilde_matrix_inv)
+        pred_reward = sigmoid(np.sum(self.theta * arm))
+        bonus = self.conf_radius * norm
+        return pred_reward - bonus

@@ -11,7 +11,7 @@ class Uniform:
 
         self.features = []
         self.observations = []
-        self.thetas = []
+        self.thetas = [0] * 9
 
     def get_arms(self, context):
         # Record estimates for plotting
@@ -37,7 +37,7 @@ class Uniform:
             fit_intercept=False,
             penalty=None,
             solver="lbfgs",
-            max_iter=1000,
+            max_iter=10000,
             multi_class="ovr",
         )
         lr.fit(features, observations)
