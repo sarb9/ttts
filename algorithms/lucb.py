@@ -2,8 +2,8 @@ from algorithms.ecolog import ECOLOG
 import numpy as np
 
 
-class ArgmaxUCB(ECOLOG):
-    def get_arms(self, context):
+class LUCB(ECOLOG):
+    def choose(self, context):
         # Record the theta
         self.thetas.append(self.ecolog.theta)
         # Choose arms according to our strategy

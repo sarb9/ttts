@@ -1,8 +1,10 @@
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 
+from algorithms.algorithms import ContextualAlgorithm
 
-class Uniform:
+
+class Uniform(ContextualAlgorithm):
     def __init__(self, arms, **kwargs):
         self.arms = arms
         self.n_contexts = arms.shape[0]
@@ -11,23 +13,27 @@ class Uniform:
 
         self.features = []
         self.observations = []
-        self.thetas = [0] * 9
+        self.thetas = [0] * 10
 
-    def get_arms(self, context):
+    def parameters(self):
+        return {}
+
+    def choose(self, context):
         # Record estimates for plotting
-        if len(self.features) >= 10:
-            self.thetas.append(self.get_theta_hat())
+        if len(self.features) >= 9:
+            self.thetas.append(self.__get_theta_hat())
 
         # Selects two arms uniformly at random
         arms = np.random.choice(self.n_arms, 2, replace=False)
         return arms[0], arms[1]
 
-    def update(self, context, arm1, arm2, observation):
+    def learn(self, context, arm, observation):
+        arm1, arm2 = arm
         arms = self.arms[context, arm1], self.arms[context, arm2]
         self.features.append(arms[0] - arms[1])
         self.observations.append(observation)
 
-    def get_theta_hat(self):
+    def __get_theta_hat(self):
         # Returns the policy that finds the arm with the highest mean reward using logistic regression
         features = np.array(self.features)
         observations = np.array(self.observations)

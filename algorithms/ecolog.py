@@ -7,23 +7,23 @@ class ECOLOG(Uniform):
     def __init__(
         self,
         arms,
-        param_norm_ub=None,
+        true_param_norm_ub=None,
         failure_level=0.05,
         **kwargs,
     ):
         super().__init__(arms, **kwargs)
         assert (
-            param_norm_ub is not None
-        ), "param_norm_ub must be specified for Confidence algorithm"
-        self.param_norm_ub = param_norm_ub
+            true_param_norm_ub is not None
+        ), "true_param_norm_ub must be specified for Confidence algorithm"
+        self.true_param_norm_ub = true_param_norm_ub
         self.failure_level = failure_level
-        # Assert all arms have norm bounded by param_norm_ub
+        # Assert all arms have norm bounded by true_param_norm_ub
         self.arm_norm_ub = 1
         assert np.all(
-            np.linalg.norm(self.arms, axis=2) <= self.param_norm_ub
-        ), "All arms must have norm bounded by param_norm_ub"
+            np.linalg.norm(self.arms, axis=2) <= self.true_param_norm_ub
+        ), "All arms must have norm bounded by true_param_norm_ub"
         self.ecolog = EcoLog(
-            param_norm_ub=self.param_norm_ub,
+            param_norm_ub=self.true_param_norm_ub,
             arm_norm_ub=self.arm_norm_ub,
             dim=self.d,
             failure_level=self.failure_level,
@@ -46,7 +46,7 @@ class ECOLOG(Uniform):
                     )
         return armpairs
 
-    def get_arms(self, context):
+    def choose(self, context):
         # Record the theta
         self.thetas.append(self.ecolog.theta)
         # Choose arms according to the ECOLog algorithm
@@ -59,8 +59,9 @@ class ECOLOG(Uniform):
             arm2 += 1
         return arm1, arm2
 
-    def update(self, context, arm1, arm2, reward):
+    def learn(self, context, arm, reward):
         # Update the ECOLog algorithm
+        arm1, arm2 = arm
         self.ecolog.learn(
             arm=self.armpairs[context, arm1 * (self.n_arms - 1) + arm2 - 1],
             reward=reward,

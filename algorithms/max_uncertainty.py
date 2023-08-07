@@ -4,7 +4,7 @@ from utils.utils import weighted_norm
 
 
 class MaxUncertainty(ECOLOG):
-    def get_arms(self, context):
+    def choose(self, context):
         # Record the theta
         self.thetas.append(self.ecolog.theta)
         active_arms = self.armpairs[context]

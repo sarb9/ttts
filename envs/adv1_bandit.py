@@ -1,5 +1,5 @@
 import numpy as np
-from envs.guass_bandit import DuelBandit
+from envs.guassian_bandit import DuelBandit
 
 
 class AdvBandit1(DuelBandit):
