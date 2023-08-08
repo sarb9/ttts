@@ -18,8 +18,8 @@ class Adv4Bandit(GuassianBandit):
         )
 
         # set i'th arm's i'th feature to 1 in i'th context
-        for i in range(self.n_contexts):
-            self.arms[i, i % self.n_contexts, i % self.d] = 4
+        for i in range(self.d):
+            self.arms[i % self.n_arms, i % self.n_contexts, i] = 4
 
         if self.fit_into_unit_ball:
             # cut the arms to fit into the unit ball

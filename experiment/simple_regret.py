@@ -46,27 +46,33 @@ class SimpleRegret(CallBack):
         super().reset()
 
     def wrap_up(self):
-        plt.figure(figsize=(16, 8))
-        for alg_factory in self.experiment.algorithm_factories:
-            for bandit_factory in self.experiment.bandit_factories:
+        n_envs = len(self.experiment.bandit_factories)
+        fig = plt.figure(figsize=(16, 8))
+        gs = fig.add_gridspec(n_envs, hspace=0)
+        axs = gs.subplots(sharex=True)
+        fig.suptitle("Simple Regrets")
+        for i, bandit_factory in enumerate(self.experiment.bandit_factories):
+            for alg_factory in self.experiment.algorithm_factories:
                 regrets = np.array(
                     self.experiment.simple_regret[alg_factory.name][bandit_factory.name]
                 )  # shape: (n_runs, n_checkpoints)
                 means = np.mean(regrets, axis=0)
                 stds = np.std(regrets, axis=0)
-                plt.plot(
+                axs[i].plot(
                     [i * self.interval for i in range(len(means))],
                     means,
                     label=f"{alg_factory.name} on {bandit_factory.name}",
                 )
-                plt.fill_between(
+                axs[i].fill_between(
                     [i * self.interval for i in range(len(means))],
                     means - stds,
                     means + stds,
                     alpha=0.2,
                 )
+                axs[i].legend()
         plt.xlabel("Checkpoints")
         plt.ylabel("Simple Regrets")
-        plt.title("Simple Regrets vs Checkpoints")
-        plt.legend()
+        # Hide x labels and tick labels for all but bottom plot.
+        for ax in axs:
+            ax.label_outer()
         plt.show()

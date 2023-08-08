@@ -1,3 +1,6 @@
+import time
+
+
 class CallBack:
     def initialize(self, experiment):
         self.reset()
@@ -25,10 +28,14 @@ class Experiment:
         self,
         n_steps,
         n_runs,
+        log_progress=False,
     ):
         for callback in self.callbacks:
             callback.initialize(self)
 
+        # log elappsed time
+        if log_progress:
+            start_time = time.time()
         for bandit_factory in self.bandit_factories:
             for run in range(n_runs):
                 env = bandit_factory.create_bandit()
@@ -43,6 +50,10 @@ class Experiment:
                             alg,
                             run,
                         )
+                if log_progress:
+                    print(
+                        f"Finished run {run + 1} of {n_runs} for {bandit_factory.name} in {time.time() - start_time} seconds"
+                    )
 
         for callback in self.callbacks:
             callback.wrap_up()

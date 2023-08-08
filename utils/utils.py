@@ -19,3 +19,10 @@ def gaussian_sample_ellipsoid(center, design, radius):
     sample = np.random.normal(0, 1, (dim,))
     res = np.real_if_close(center + np.linalg.solve(sqrtm(design), sample) * radius)
     return res
+
+
+def gaussian_sample_ellipsoid_not_centered(center, design, radius):
+    dim = len(center)
+    sample = np.random.normal(0, 1, (dim,))
+    res = np.real_if_close(np.linalg.solve(sqrtm(design), sample) * radius)
+    return res
