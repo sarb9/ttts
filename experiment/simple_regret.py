@@ -38,7 +38,7 @@ class SimpleRegret(CallBack):
                 # is a dictionary of lists of lists
                 # where the outer list is indexed by by runs,
                 # and the inner list is indexed by checkpoints.
-            self.experiment.simple_regret[alg_name][env_name].append(regrets)
+        self.experiment.simple_regret[alg_name][env_name].append(regrets)
 
     def reset(self):
         if hasattr(self, "experiment"):
@@ -58,21 +58,23 @@ class SimpleRegret(CallBack):
                 )  # shape: (n_runs, n_checkpoints)
                 means = np.mean(regrets, axis=0)
                 stds = np.std(regrets, axis=0)
-                axs[i].plot(
+                ax = axs[i] if n_envs > 1 else axs
+                ax.plot(
                     [i * self.interval for i in range(len(means))],
                     means,
                     label=f"{alg_factory.name} on {bandit_factory.name}",
                 )
-                axs[i].fill_between(
+                ax.fill_between(
                     [i * self.interval for i in range(len(means))],
                     means - stds,
                     means + stds,
                     alpha=0.2,
                 )
-                axs[i].legend()
+                ax.legend()
         plt.xlabel("Checkpoints")
         plt.ylabel("Simple Regrets")
         # Hide x labels and tick labels for all but bottom plot.
-        for ax in axs:
-            ax.label_outer()
+        if n_envs > 1:
+            for ax in axs:
+                ax.label_outer()
         plt.show()

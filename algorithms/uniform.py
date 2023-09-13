@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 from algorithms.algorithms import ContextualAlgorithm
+from algorithms.utils import add_chosen_arm
 
 
 class Uniform(ContextualAlgorithm):
@@ -14,10 +15,12 @@ class Uniform(ContextualAlgorithm):
         self.features = []
         self.observations = []
         self.thetas = [0] * 10
+        self.chosen_arms = []
 
     def parameters(self):
         return {}
 
+    @add_chosen_arm
     def choose(self, context):
         # Record estimates for plotting
         if len(self.features) >= 9:

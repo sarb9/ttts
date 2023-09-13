@@ -12,6 +12,15 @@ from utils.utils import (
 )
 
 
+def add_chosen_arm(choose_function):
+    def choose(self, context):
+        arm1, arm2 = choose_function(self, context)
+        self.chosen_arms.append((arm1, arm2))
+        return arm1, arm2
+
+    return choose
+
+
 class EcoLog:
     def __init__(self, param_norm_ub, arm_norm_ub, dim, failure_level):
         self.param_norm_ub = param_norm_ub
