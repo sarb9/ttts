@@ -36,7 +36,7 @@ class ActionTracker(CallBack):
     def wrap_up(self):
         n_envs = len(self.experiment.bandit_factories)
         n_algs = len(self.experiment.algorithm_factories)
-        fig = plt.figure(figsize=(16, 25))
+        fig = plt.figure(figsize=(16, 5 * n_algs))
         gs = fig.add_gridspec(n_envs * n_algs, hspace=0)
         axs = gs.subplots(sharex=True)
         fig.suptitle("Chosen Actions")

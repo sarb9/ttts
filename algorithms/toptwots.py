@@ -34,6 +34,5 @@ class TopTwoTS(ECOLOG):
             )
 
             arm2 = np.argmax(np.dot(arms, param2))
-            if arm1 == 
 
         return arm1, arm2

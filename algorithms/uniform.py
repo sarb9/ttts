@@ -14,7 +14,7 @@ class Uniform(ContextualAlgorithm):
 
         self.features = []
         self.observations = []
-        self.thetas = [0] * 10
+        self.thetas = []
         self.chosen_arms = []
 
     def parameters(self):
@@ -22,6 +22,8 @@ class Uniform(ContextualAlgorithm):
 
     @add_chosen_arm
     def choose(self, context):
+        if len(self.thetas) == 0:
+            self.thetas = [np.array([0, 0]) for i in range(10)]
         # Record estimates for plotting
         if len(self.features) >= 9:
             self.thetas.append(self.__get_theta_hat())

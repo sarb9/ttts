@@ -1,6 +1,7 @@
 from algorithms.utils import EcoLog
 from algorithms.uniform import Uniform
 import numpy as np
+from algorithms.utils import add_chosen_arm
 
 
 class ECOLOG(Uniform):
@@ -46,6 +47,7 @@ class ECOLOG(Uniform):
                     )
         return armpairs
 
+    @add_chosen_arm
     def choose(self, context):
         # Record the theta
         self.thetas.append(self.ecolog.theta)
