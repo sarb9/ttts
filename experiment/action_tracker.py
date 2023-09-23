@@ -5,8 +5,8 @@ from experiment.experiment import CallBack
 
 
 class ActionTracker(CallBack):
-    def __init__(self) -> None:
-        pass
+    def __init__(self, arm_pair=True) -> None:
+        self.arm_pair = arm_pair
 
     def initialize(self, experiment):
         super().initialize(experiment)
@@ -20,6 +20,11 @@ class ActionTracker(CallBack):
     def __call__(self, env_name, alg_name, env, alg, run):
         # call the parent class's __call__ method
         super().__call__(env_name, alg_name, env, alg, run)
+        if self.arm_pair is False:
+            self.experiment.action_tracker[alg_name][env_name].append(
+                alg.chosen_arms.copy()
+            )
+            return
         chosen_arms = []
         for i in range(len(alg.chosen_arms)):
             arm1 = min(alg.chosen_arms[i])
@@ -49,18 +54,22 @@ class ActionTracker(CallBack):
                         bandit_factory.name
                     ][0]
                 )
-                chosen_arms = {
-                    str(arm2) + str(arm1): np.zeros(n_steps)
-                    for arm1 in range(n_arms)
-                    for arm2 in range(arm1 + 1)
-                }
+                chosen_arms = (
+                    {
+                        str(arm2) + str(arm1): np.zeros(n_steps)
+                        for arm1 in range(n_arms)
+                        for arm2 in range(arm1 + 1)
+                    }
+                    if self.arm_pair
+                    else {arm: np.zeros(n_steps) for arm in range(n_arms)}
+                )
                 for ca in self.experiment.action_tracker[alg_factory.name][
                     bandit_factory.name
                 ]:
-                    for k, arm_pair in enumerate(ca):
-                        chosen_arms[arm_pair][k] += 1
+                    for k, arm in enumerate(ca):
+                        chosen_arms[arm][k] += 1
 
-                ax = axs[i * (n_algs - 1) + j]
+                ax = axs[i * (n_algs - 1) + j] if n_algs > 1 else axs
                 ax.stackplot(
                     range(n_steps),
                     chosen_arms.values(),
@@ -72,7 +81,7 @@ class ActionTracker(CallBack):
                 ax.set_xlabel("time step")
                 ax.set_ylabel(f"{alg_factory.name} on {bandit_factory.name}")
                 ax.legend()
-
-        for ax in axs:
-            ax.label_outer()
+        if n_algs > 1:
+            for ax in axs:
+                ax.label_outer()
         plt.show()

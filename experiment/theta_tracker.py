@@ -25,12 +25,26 @@ CMPAS = [
     "YlGn",
 ]
 
+COLORS = [
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+    "#bcbd22",
+    "#17becf",
+]
+
 
 class ThetaTracker(CallBack):
-    def __init__(self, interval, style="seperate") -> None:
+    def __init__(self, interval, style="seperate", show_actions=False) -> None:
         self.interval = interval
         assert style in ["seperate", "together"], "style must be seperate or together"
         self.style = style
+        self.show_actions = show_actions
 
     def initialize(self, experiment):
         super().initialize(experiment)
@@ -46,6 +60,7 @@ class ThetaTracker(CallBack):
             }
             for alg_fac in self.experiment.algorithm_factories
         }
+        self.experiment.theta_tracker_arms = {}
 
     def __call__(self, env_name, alg_name, env, alg, run):
         # call the parent class's __call__ method
@@ -53,6 +68,7 @@ class ThetaTracker(CallBack):
         thetas = alg.thetas
         self.experiment.theta_tracker[alg_name][env_name].append(thetas)
         self.experiment.theta_tracker_true_theta[alg_name][env_name].append(env.theta)
+        self.experiment.theta_tracker_arms[env_name] = env.arms
 
     def reset(self):
         if hasattr(self, "experiment"):
@@ -95,6 +111,27 @@ class ThetaTracker(CallBack):
             ax.set(xlabel="x", ylabel="y")
             ax.set_title(f"{bandit_factory.name}")
             legends = []
+
+            # set xlim and ylim
+            ax.set_xlim(-1.5, 1.5)
+            ax.set_ylim(-1.5, 1.5)
+
+            if self.show_actions:
+                all_arms = self.experiment.theta_tracker_arms[bandit_factory.name]
+                for context in range(all_arms.shape[0]):
+                    color = COLORS[context]
+                    arms = all_arms[context]
+                    origin = np.array([[0] * arms.shape[0], [0] * arms.shape[0]])
+
+                    ax.quiver(
+                        *origin,
+                        arms[:, 0],
+                        arms[:, 1],
+                        color=color,
+                        angles="xy",
+                        scale_units="xy",
+                        scale=1,
+                    )
 
             for j, alg_factory in enumerate(self.experiment.algorithm_factories):
                 thetas = self.experiment.theta_tracker[alg_factory.name][

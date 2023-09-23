@@ -71,6 +71,10 @@ class SimpleRegret(CallBack):
                     alpha=0.2,
                 )
                 ax.legend()
+
+                # set y limit
+                ax.set_ylim(-0.5, 15)
+
         plt.xlabel("Checkpoints")
         plt.ylabel("Simple Regrets")
         # Hide x labels and tick labels for all but bottom plot.
